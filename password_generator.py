@@ -3,6 +3,9 @@ import string
 
 
 def generate_password(length, use_lowercase=True, use_uppercase=True, use_digits=True, use_symbols=True):
+    if length < 6 or length > 128:
+        raise ValueError("Length must be between 6 and 128")
+
     character_pool = ''
     if use_lowercase:
         character_pool += string.ascii_lowercase

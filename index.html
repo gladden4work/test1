@@ -3,26 +3,57 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Password Generator</title>
+    <title>Random Password Generator</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 2em; }
-        label { display: block; margin-top: 0.5em; }
-        button { margin-top: 1em; }
-        input[type='number'] { width: 4em; }
+        body {
+            font-family: Arial, sans-serif;
+            margin: 2em;
+            max-width: 480px;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+        label {
+            margin-top: 0.5em;
+        }
+        button {
+            margin-top: 1em;
+        }
+        input[type='number'] {
+            width: 6em;
+        }
+        #output {
+            display: flex;
+            align-items: center;
+            margin-top: 1em;
+        }
+        #password {
+            flex: 1;
+            word-break: break-all;
+            padding-right: 0.5em;
+        }
     </style>
 </head>
 <body>
-    <h1>Password Generator</h1>
-    <label>
-        Length:
-        <input type="number" id="length" min="1" value="12">
-    </label>
-    <label><input type="checkbox" id="lowercase" checked> Include lowercase</label>
-    <label><input type="checkbox" id="uppercase" checked> Include uppercase</label>
-    <label><input type="checkbox" id="digits" checked> Include digits</label>
-    <label><input type="checkbox" id="symbols" checked> Include symbols</label>
-    <button id="generate">Generate</button>
-    <p id="result"></p>
+    <h1>Random Password Generator</h1>
+    <form id="generator-form">
+        <label>
+            Length (6–128):
+            <input type="number" id="length" min="6" max="128" value="12">
+        </label>
+        <label><input type="checkbox" id="lowercase" checked> Include lowercase</label>
+        <label><input type="checkbox" id="uppercase" checked> Include uppercase</label>
+        <label><input type="checkbox" id="digits" checked> Include digits</label>
+        <label><input type="checkbox" id="symbols" checked> Include symbols</label>
+        <div id="error" style="color:red"></div>
+        <button type="button" id="generate">Generate Password</button>
+        <button type="button" id="reset">Reset</button>
+    </form>
+    <div id="output" style="display:none;">
+        <p id="password"></p>
+        <button id="copy">Copy</button>
+    </div>
 
     <script>
     function getRandomChar(characters) {
@@ -37,6 +68,13 @@
         const useUpper = document.getElementById('uppercase').checked;
         const useDigits = document.getElementById('digits').checked;
         const useSymbols = document.getElementById('symbols').checked;
+        const errorEl = document.getElementById('error');
+        errorEl.textContent = '';
+
+        if (isNaN(length) || length < 6 || length > 128) {
+            errorEl.textContent = 'Length must be between 6 and 128.';
+            return;
+        }
 
         let characters = '';
         if (useLower) characters += 'abcdefghijklmnopqrstuvwxyz';
@@ -45,7 +83,7 @@
         if (useSymbols) characters += '!"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~';
 
         if (!characters) {
-            alert('Please select at least one character type.');
+            errorEl.textContent = 'Please select at least one character type.';
             return;
         }
 
@@ -53,10 +91,29 @@
         for (let i = 0; i < length; i++) {
             password += getRandomChar(characters);
         }
-        document.getElementById('result').textContent = password;
+
+        document.getElementById('password').textContent = password;
+        document.getElementById('output').style.display = 'flex';
+    }
+
+    function copyPassword() {
+        const text = document.getElementById('password').textContent;
+        navigator.clipboard.writeText(text);
+    }
+
+    function resetForm() {
+        document.getElementById('length').value = 12;
+        document.getElementById('lowercase').checked = true;
+        document.getElementById('uppercase').checked = true;
+        document.getElementById('digits').checked = true;
+        document.getElementById('symbols').checked = true;
+        document.getElementById('output').style.display = 'none';
+        document.getElementById('error').textContent = '';
     }
 
     document.getElementById('generate').addEventListener('click', generatePassword);
+    document.getElementById('copy').addEventListener('click', copyPassword);
+    document.getElementById('reset').addEventListener('click', resetForm);
     </script>
 </body>
 </html>
